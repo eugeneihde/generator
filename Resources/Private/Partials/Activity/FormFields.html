@@ -2,7 +2,7 @@
 <label for="date">
 	<f:translate key="tx_generator_domain_model_activity.date" /> <span class="required">(required)</span>
 </label><br />
-	<f:form.textfield property="date" id="date" value="{activity.date->f:format.date()}" /><br />
+	<f:form.textfield type="date" property="date" id="date" value="{activity.date -> f:format.date()}" /><br />
 <label for="designation">
 	<f:translate key="tx_generator_domain_model_activity.designation" /> <span class="required">(required)</span>
 </label><br />

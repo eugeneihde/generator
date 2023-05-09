@@ -10,9 +10,11 @@ use Generator\Generator\Domain\Repository\TraineeRepository;
 use Psr\Http\Message\ResponseInterface;
 use TYPO3\CMS\Extbase\Mvc\Controller\ActionController;
 use Generator\Generator\Domain\Repository\ActivityRepository;
+use TYPO3\CMS\Extbase\Mvc\Exception\NoSuchArgumentException;
 use TYPO3\CMS\Extbase\Mvc\Exception\StopActionException;
 use TYPO3\CMS\Extbase\Persistence\Exception\IllegalObjectTypeException;
 use TYPO3\CMS\Extbase\Persistence\Exception\UnknownObjectException;
+use TYPO3\CMS\Extbase\Utility\DebuggerUtility;
 
 /**
  * This file is part of the "Generator" Extension for TYPO3 CMS.
@@ -98,6 +100,23 @@ class ActivityController extends ActionController
     public function newAction(): ResponseInterface
     {
         return $this->htmlResponse();
+    }
+
+    /**
+     * @throws NoSuchArgumentException
+     */
+    public function initializeCreateAction()
+    {
+        $propertyMappingConfiguration = $this->arguments->getArgument('newActivity')->getPropertyMappingConfiguration();
+        $propertyMappingConfiguration->forProperty('date')->setTypeConverterOption(
+            'TYPO3\\CMS\\Extbase\\Property\\TypeConverter\\DateTimeConverter',
+            \TYPO3\CMS\Extbase\Property\TypeConverter\DateTimeConverter::CONFIGURATION_DATE_FORMAT,
+            'Y-m-d'
+        );
+
+        $propertyMappingConfiguration->forProperty('*')->allowAllProperties();
+        $propertyMappingConfiguration->forProperty('*')->allowCreationForSubProperty('*');
+        $propertyMappingConfiguration->forProperty('*')->forProperty('*')->allowAllProperties();
     }
 
     /**
