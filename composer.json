@@ -1,0 +1,46 @@
+{
+    "name": "generator/generator",
+    "type": "typo3-cms-extension",
+    "description": "",
+    "authors": [
+        {
+            "name": "Eugene Ihde",
+            "role": "Developer"
+        }
+    ],
+    "license": "GPL-2.0-or-later",
+    "require": {
+        "typo3/cms-core": "^11.5"
+    },
+    "require-dev": {
+        "typo3/testing-framework": "^6.9.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "Generator\\Generator\\": "Classes"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Generator\\Generator\\Tests\\": "Tests"
+        }
+    },
+    "replace": {
+        "typo3-ter/generator": "self.version"
+    },
+    "config": {
+        "vendor-dir": ".Build/vendor",
+        "bin-dir": ".Build/bin"
+    },
+    "scripts": {
+        "post-autoload-dump": [
+            "TYPO3\\TestingFramework\\Composer\\ExtensionTestEnvironment::prepare"
+        ]
+    },
+    "extra": {
+        "typo3/cms": {
+            "web-dir": ".Build/public",
+            "extension-key": "generator"
+        }
+    }
+}

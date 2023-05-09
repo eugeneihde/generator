@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<xliff version="1.0">
+	<file source-language="en" datatype="plaintext" original="EXT:generator/Resources/Private/Language/locallang.xlf" date="2023-05-09T08:33:33Z" product-name="generator">
+		<header/>
+		<body>
+			<trans-unit id="tx_generator_domain_model_activity" resname="tx_generator_domain_model_activity">
+				<source>Activity</source>
+			</trans-unit>
+			<trans-unit id="tx_generator_domain_model_activity.description" resname="tx_generator_domain_model_activity.description">
+				<source>Description</source>
+			</trans-unit>
+			<trans-unit id="tx_generator_domain_model_activity.date" resname="tx_generator_domain_model_activity.date">
+				<source>Date</source>
+			</trans-unit>
+			<trans-unit id="tx_generator_domain_model_activity.date.description" resname="tx_generator_domain_model_activity.date.description">
+				<source>Date</source>
+			</trans-unit>
+			<trans-unit id="tx_generator_domain_model_activity.designation" resname="tx_generator_domain_model_activity.designation">
+				<source>Designation</source>
+			</trans-unit>
+			<trans-unit id="tx_generator_domain_model_activity.designation.description" resname="tx_generator_domain_model_activity.designation.description">
+				<source>Designation</source>
+			</trans-unit>
+			<trans-unit id="tx_generator_domain_model_activity.description.description" resname="tx_generator_domain_model_activity.description.description">
+				<source>Description</source>
+			</trans-unit>
+			<trans-unit id="tx_generator_domain_model_activity.category" resname="tx_generator_domain_model_activity.category">
+				<source>Category</source>
+			</trans-unit>
+			<trans-unit id="tx_generator_domain_model_activity.category.description" resname="tx_generator_domain_model_activity.category.description">
+				<source>Category</source>
+			</trans-unit>
+			<trans-unit id="tx_generator_domain_model_activity.trainee" resname="tx_generator_domain_model_activity.trainee">
+				<source>Trainee</source>
+			</trans-unit>
+			<trans-unit id="tx_generator_domain_model_activity.trainee.description" resname="tx_generator_domain_model_activity.trainee.description">
+				<source>Trainee</source>
+			</trans-unit>
+			<trans-unit id="tx_generator_domain_model_trainee" resname="tx_generator_domain_model_trainee">
+				<source>Trainee</source>
+			</trans-unit>
+			<trans-unit id="tx_generator_domain_model_trainee.description" resname="tx_generator_domain_model_trainee.description">
+				<source>Trainee</source>
+			</trans-unit>
+		</body>
+	</file>
+</xliff>

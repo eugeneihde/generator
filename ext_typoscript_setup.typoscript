@@ -1,0 +1,21 @@
+
+config.tx_extbase {
+  persistence {
+    classes {
+
+      TYPO3\CMS\Extbase\Domain\Model\FrontendUser {
+        subclasses {
+          Tx_Generator_Trainee = Generator\Generator\Domain\Model\Trainee
+          
+        }
+      }
+      Generator\Generator\Domain\Model\Trainee {
+        mapping {
+          tableName = fe_users
+          recordType = Tx_Generator_Trainee
+        }
+      }
+
+    }
+  }
+}

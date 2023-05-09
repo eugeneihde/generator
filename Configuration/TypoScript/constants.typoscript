@@ -1,0 +1,14 @@
+plugin.tx_generator_activitymanager {
+    view {
+        # cat=plugin.tx_generator_activitymanager/file; type=string; label=Path to template root (FE)
+        templateRootPath = EXT:generator/Resources/Private/Templates/
+        # cat=plugin.tx_generator_activitymanager/file; type=string; label=Path to template partials (FE)
+        partialRootPath = EXT:generator/Resources/Private/Partials/
+        # cat=plugin.tx_generator_activitymanager/file; type=string; label=Path to template layouts (FE)
+        layoutRootPath = EXT:generator/Resources/Private/Layouts/
+    }
+    persistence {
+        # cat=plugin.tx_generator_activitymanager//a; type=string; label=Default storage PID
+        storagePid =
+    }
+}
