@@ -13,8 +13,6 @@ use Generator\Generator\Domain\Repository\ActivityRepository;
 use TYPO3\CMS\Extbase\Mvc\Exception\StopActionException;
 use TYPO3\CMS\Extbase\Persistence\Exception\IllegalObjectTypeException;
 use TYPO3\CMS\Extbase\Persistence\Exception\UnknownObjectException;
-use TYPO3\CMS\Extbase\Utility\DebuggerUtility;
-use TYPO3\CMS\FrontendLogin\Domain\Repository\FrontendUserRepository;
 
 /**
  * This file is part of the "Generator" Extension for TYPO3 CMS.
@@ -46,13 +44,17 @@ class ActivityController extends ActionController
     /**
      * @param ActivityRepository $activityRepository
      */
-    public function injectActivityRepository(ActivityRepository $activityRepository)
+    public function injectActivityRepository(ActivityRepository $activityRepository): void
     {
         $this->activityRepository = $activityRepository;
         
     }
-    
-    public function injectTraineeRepository(TraineeRepository $traineeRepository)
+
+    /**
+     * @param TraineeRepository $traineeRepository
+     * @return void
+     */
+    public function injectTraineeRepository(TraineeRepository $traineeRepository): void
     {
         $this->traineeRepository = $traineeRepository;
     }
@@ -64,9 +66,15 @@ class ActivityController extends ActionController
      */
     public function listAction(): ResponseInterface
     {
-        DebuggerUtility::var_dump($GLOBALS['TSFE']->fe_user->user['uid']);
         $activities = $this->activityRepository->findAll();
-        $this->view->assign('activities', $activities);
+
+        foreach ($activities as $activity) {
+            if ($activity->getTrainee()->getUid() == $GLOBALS['TSFE']->fe_user->user['uid']) {
+                $filteredActivities[] = $activity;
+            }
+        }
+
+        $this->view->assign('activities', $filteredActivities);
         return $this->htmlResponse();
     }
 
@@ -78,7 +86,6 @@ class ActivityController extends ActionController
      */
     public function showAction(Activity $activity): ResponseInterface
     {
-        $this->traineeRepository->findByUid($GLOBALS['TSFE']->fe_user->user['uid']);
         $this->view->assign('activity', $activity);
         return $this->htmlResponse();
     }
@@ -102,7 +109,7 @@ class ActivityController extends ActionController
      */
     public function createAction(Activity $newActivity)
     {
-//        DebuggerUtility::var_dump($this->traineeRepository->findByUid($GLOBALS['TSFE']->fe_user->user['uid']));
+        $newActivity->setTrainee($this->traineeRepository->findByUid($GLOBALS['TSFE']->fe_user->user['uid']));
         $this->activityRepository->add($newActivity);
         $this->redirect('list');
     }
