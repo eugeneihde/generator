@@ -29,8 +29,11 @@
         "typo3-ter/generator": "self.version"
     },
     "config": {
-        "vendor-dir": ".Build/vendor",
-        "bin-dir": ".Build/bin"
+        "allow-plugins": {
+            "typo3/class-alias-loader": true
+        },
+        "vendor-dir": "../../vendor",
+        "bin-dir": "../../vendor/bin"
     },
     "scripts": {
         "post-autoload-dump": [
