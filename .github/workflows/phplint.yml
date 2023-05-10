@@ -6,7 +6,3 @@ jobs:
     steps:
       - uses: actions/checkout@v1
       - uses: michaelw90/PHP-Lint@master
-      - run: composer install
-        with:
-          extensions: php
-          ignore: vendor
