@@ -1,12 +1,15 @@
-<html xmlns:f="http://typo3.org/ns/TYPO3/CMS/Fluid/ViewHelpers" data-namespace-typo3-fluid="true">
+<html
+    xmlns:f="http://typo3.org/ns/TYPO3/CMS/Fluid/ViewHelpers"
+    data-namespace-typo3-fluid="true"
+>
 <f:layout name="Default" />
 
 <f:section name="content">
-    <h1>Single View for Activity</h1>
+    <h1>Einzelansicht einer Aktivität</h1>
 
     <f:flashMessages />
     <f:render partial="Activity/Properties" arguments="{activity:activity}" />
-    <f:link.action action="list">Back to list</f:link.action><br />
-    <f:link.action action="new">New Activity</f:link.action>
+    <f:link.action action="list">Zurück zur Übersicht</f:link.action><br />
+    <f:link.action action="new">Aktivität hinzufügen</f:link.action>
 </f:section>
 </html>

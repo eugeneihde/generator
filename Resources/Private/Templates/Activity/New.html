@@ -1,8 +1,11 @@
-<html xmlns:f="http://typo3.org/ns/TYPO3/CMS/Fluid/ViewHelpers" data-namespace-typo3-fluid="true">
+<html
+    xmlns:f="http://typo3.org/ns/TYPO3/CMS/Fluid/ViewHelpers"
+    data-namespace-typo3-fluid="true"
+>
 <f:layout name="Default" />
 
 <f:section name="content">
-    <h1>New Activity</h1>
+    <h1>Aktivität hinzufügen</h1>
 
     <f:flashMessages />
 
@@ -10,7 +13,7 @@
 
     <f:form action="create" name="newActivity" object="{newActivity}">
     <f:render partial="Activity/FormFields" />
-    <f:form.submit value="Create new" />
+    <f:form.submit value="Hinzufügen" />
     </f:form>
 </f:section>
 </html>

@@ -1,19 +1,22 @@
-<html xmlns:f="http://typo3.org/ns/TYPO3/CMS/Fluid/ViewHelpers" data-namespace-typo3-fluid="true">
+<html
+	xmlns:f="http://typo3.org/ns/TYPO3/CMS/Fluid/ViewHelpers"
+	data-namespace-typo3-fluid="true"
+>
 <table class="tx-generator">
 	<tr>
-		<td><f:translate key="tx_generator_domain_model_activity.date" /></td>
+		<td>Datum: </td>
 		<td>{activity.date -> f:format.date()}</td>
 	</tr>
 	<tr>
-		<td><f:translate key="tx_generator_domain_model_activity.designation" /></td>
+		<td>Bezeichnung: </td>
 		<td>{activity.designation}</td>
 	</tr>
 	<tr>
-		<td><f:translate key="tx_generator_domain_model_activity.description" /></td>
+		<td>Beschreibung: </td>
 		<td>{activity.description}</td>
 	</tr>
 	<tr>
-		<td><f:translate key="tx_generator_domain_model_activity.category" /></td>
+		<td>Kategorie: </td>
 		<td>{activity.category}</td>
 	</tr>
 </table>

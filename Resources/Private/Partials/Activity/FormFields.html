@@ -1,18 +1,21 @@
-<html xmlns:f="http://typo3.org/ns/TYPO3/CMS/Fluid/ViewHelpers" data-namespace-typo3-fluid="true">
+<html
+	xmlns:f="http://typo3.org/ns/TYPO3/CMS/Fluid/ViewHelpers"
+	data-namespace-typo3-fluid="true" lang="de"
+>
 <label for="date">
-	<f:translate key="tx_generator_domain_model_activity.date" /> <span class="required">(required)</span>
+	Datum *
 </label><br />
-	<f:form.textfield type="date" property="date" id="date" value="{activity.date -> f:format.date()}" /><br />
+	<f:form.textfield type="date" property="date" id="date" value="{activity.date -> f:format.date()}" required="true" /><br />
 <label for="designation">
-	<f:translate key="tx_generator_domain_model_activity.designation" /> <span class="required">(required)</span>
+	Bezeichnung *
 </label><br />
 	<f:form.textfield property="designation" id="designation" /><br />
 <label for="description">
-	<f:translate key="tx_generator_domain_model_activity.description" /> <span class="required">(required)</span>
+	Beschreibung *
 </label><br />
-	<f:form.textfield property="description" id="description" /><br />
+	<f:form.textarea property="description" id="description" /><br />
 <label for="category">
-	<f:translate key="tx_generator_domain_model_activity.category" />
+	Kategorie
 </label><br />
 	<f:form.textfield property="category" id="category" /><br />
 </html>

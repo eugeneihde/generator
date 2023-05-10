@@ -7,17 +7,17 @@ namespace Generator\Generator\Controller;
 
 use Generator\Generator\Domain\Model\Activity;
 use Generator\Generator\Domain\Repository\TraineeRepository;
+use Generator\Generator\Domain\Repository\ActivityRepository;
 use Psr\Http\Message\ResponseInterface;
 use TYPO3\CMS\Extbase\Mvc\Controller\ActionController;
-use Generator\Generator\Domain\Repository\ActivityRepository;
 use TYPO3\CMS\Extbase\Mvc\Exception\NoSuchArgumentException;
 use TYPO3\CMS\Extbase\Mvc\Exception\StopActionException;
 use TYPO3\CMS\Extbase\Persistence\Exception\IllegalObjectTypeException;
 use TYPO3\CMS\Extbase\Persistence\Exception\UnknownObjectException;
-use TYPO3\CMS\Extbase\Utility\DebuggerUtility;
 
 /**
  * This file is part of the "Generator" Extension for TYPO3 CMS.
+ *
  *
  * For the full copyright and license information, please read the
  * LICENSE.txt file that was distributed with this source code.
@@ -30,7 +30,6 @@ use TYPO3\CMS\Extbase\Utility\DebuggerUtility;
  */
 class ActivityController extends ActionController
 {
-
     /**
      * activityRepository
      *
@@ -42,6 +41,16 @@ class ActivityController extends ActionController
      * @var TraineeRepository|null 
      */
     protected ?TraineeRepository $traineeRepository = null;
+
+    /**
+     * @var int
+     */
+    private int $loggedInUserId = 0;
+
+    /**
+     * @var array
+     */
+    private array $filteredActivities = [];
 
     /**
      * @param ActivityRepository $activityRepository
@@ -61,6 +70,11 @@ class ActivityController extends ActionController
         $this->traineeRepository = $traineeRepository;
     }
 
+    public function __construct()
+    {
+        $this->loggedInUserId = $GLOBALS['TSFE']->fe_user->user['uid'];
+    }
+
     /**
      * action list
      *
@@ -70,13 +84,23 @@ class ActivityController extends ActionController
     {
         $activities = $this->activityRepository->findAll();
 
+//        $selectedCalendarWeek = 36;
+//        foreach ($activities as $activity) {
+//            if (
+//                $activity->getDate()->format('W') == $selectedCalendarWeek && 
+//                $activity->getTrainee()->getUid() == $this->loggedInUserId
+//            ) {
+//                $filteredActivities[] = $activity;
+//            }
+//        }
+
         foreach ($activities as $activity) {
-            if ($activity->getTrainee()->getUid() == $GLOBALS['TSFE']->fe_user->user['uid']) {
-                $filteredActivities[] = $activity;
+            if ($activity->getTrainee()->getUid() == $this->loggedInUserId) {
+                $this->filteredActivities[] = $activity;
             }
         }
 
-        $this->view->assign('activities', $filteredActivities);
+        $this->view->assign('activities', $this->filteredActivities);
         return $this->htmlResponse();
     }
 
@@ -128,7 +152,7 @@ class ActivityController extends ActionController
      */
     public function createAction(Activity $newActivity)
     {
-        $newActivity->setTrainee($this->traineeRepository->findByUid($GLOBALS['TSFE']->fe_user->user['uid']));
+        $newActivity->setTrainee($this->traineeRepository->findByUid($this->loggedInUserId));
         $this->activityRepository->add($newActivity);
         $this->redirect('list');
     }
