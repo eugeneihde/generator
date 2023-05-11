@@ -9,6 +9,7 @@ use Generator\Generator\Domain\Model\Activity;
 use Generator\Generator\Domain\Repository\TraineeRepository;
 use Generator\Generator\Domain\Repository\ActivityRepository;
 use Psr\Http\Message\ResponseInterface;
+use TYPO3\CMS\Core\Messaging\AbstractMessage;
 use TYPO3\CMS\Extbase\Mvc\Controller\ActionController;
 use TYPO3\CMS\Extbase\Mvc\Exception\NoSuchArgumentException;
 use TYPO3\CMS\Extbase\Mvc\Exception\StopActionException;
@@ -45,15 +46,16 @@ class ActivityController extends ActionController
     /**
      * @var int
      */
-    private int $loggedInUserId = 0;
+    protected int $loggedInUserId = 0;
 
     /**
      * @var array
      */
-    private array $filteredActivities = [];
+    protected array $filteredActivities = [];
 
     /**
      * @param ActivityRepository $activityRepository
+     * @return void
      */
     public function injectActivityRepository(ActivityRepository $activityRepository): void
     {
@@ -83,19 +85,14 @@ class ActivityController extends ActionController
     public function listAction(): ResponseInterface
     {
         $activities = $this->activityRepository->findAll();
-
-//        $selectedCalendarWeek = 36;
-//        foreach ($activities as $activity) {
-//            if (
-//                $activity->getDate()->format('W') == $selectedCalendarWeek && 
-//                $activity->getTrainee()->getUid() == $this->loggedInUserId
-//            ) {
-//                $filteredActivities[] = $activity;
-//            }
-//        }
+        // @todo: get calendar week from url ?
+        $selectedCalendarWeek = $_GET['kw'] ?? date('W');
 
         foreach ($activities as $activity) {
-            if ($activity->getTrainee()->getUid() == $this->loggedInUserId) {
+            if (
+                $activity->getDate()->format('W') == $selectedCalendarWeek && 
+                $activity->getTrainee()->getUid() == $this->loggedInUserId
+            ) {
                 $this->filteredActivities[] = $activity;
             }
         }
@@ -112,6 +109,7 @@ class ActivityController extends ActionController
      */
     public function showAction(Activity $activity): ResponseInterface
     {
+//        $this->generateAction();
         $this->view->assign('activity', $activity);
         return $this->htmlResponse();
     }
@@ -154,6 +152,7 @@ class ActivityController extends ActionController
     {
         $newActivity->setTrainee($this->traineeRepository->findByUid($this->loggedInUserId));
         $this->activityRepository->add($newActivity);
+        $this->addFlashMessage('Aktivität wurde erstellt', '', \TYPO3\CMS\Core\Messaging\AbstractMessage::OK);
         $this->redirect('list');
     }
 
@@ -171,6 +170,23 @@ class ActivityController extends ActionController
     }
 
     /**
+     * @throws NoSuchArgumentException
+     */
+    public function initializeUpdateAction()
+    {
+        $propertyMappingConfiguration = $this->arguments->getArgument('activity')->getPropertyMappingConfiguration();
+        $propertyMappingConfiguration->forProperty('date')->setTypeConverterOption(
+            'TYPO3\\CMS\\Extbase\\Property\\TypeConverter\\DateTimeConverter',
+            \TYPO3\CMS\Extbase\Property\TypeConverter\DateTimeConverter::CONFIGURATION_DATE_FORMAT,
+            'Y-m-d'
+        );
+
+        $propertyMappingConfiguration->forProperty('*')->allowAllProperties();
+        $propertyMappingConfiguration->forProperty('*')->allowCreationForSubProperty('*');
+        $propertyMappingConfiguration->forProperty('*')->forProperty('*')->allowAllProperties();
+    }
+
+    /**
      * action update
      *
      * @param Activity $activity
@@ -182,6 +198,7 @@ class ActivityController extends ActionController
             $this->activityRepository->update($activity);
         } catch (IllegalObjectTypeException|UnknownObjectException $e) {
         }
+        $this->addFlashMessage('Aktivität wurde aktualisiert', '', \TYPO3\CMS\Core\Messaging\AbstractMessage::OK);
         $this->redirect('list');
     }
 
@@ -195,6 +212,40 @@ class ActivityController extends ActionController
     public function deleteAction(Activity $activity)
     {
         $this->activityRepository->remove($activity);
+        $this->addFlashMessage('Aktivität wurde gelöscht', '', \TYPO3\CMS\Core\Messaging\AbstractMessage::OK);
         $this->redirect('list');
+    }
+
+    /**
+     * action generate
+     *
+     * @return void
+     */
+    public function generateAction(): void
+    {
+        $activities = $this->activityRepository->findAll();
+
+        // @todo: function needs to get the calendar week from the fluid select box in Resources/Private/Templates/Activity/List.html
+        $selectedCalendarWeek = $_GET['kw'] ?? date('W');
+
+        foreach ($activities as $activity) {
+            if (
+                $activity->getDate()->format('W') == $selectedCalendarWeek &&
+                $activity->getTrainee()->getUid() == $this->loggedInUserId
+            ) {
+                // @todo: sort by date
+                $this->filteredActivities[] = [
+                    $activity->getDate(),
+                    $activity->getDesignation(),
+                    $activity->getDescription(),
+                    $activity->getCategory()
+                ];
+            }
+        }
+
+        printf(
+            '<pre>%s</pre>',
+            print_r($this->filteredActivities, true)
+        );
     }
 }
