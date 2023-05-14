@@ -15,6 +15,7 @@ use TYPO3\CMS\Extbase\Mvc\Exception\NoSuchArgumentException;
 use TYPO3\CMS\Extbase\Mvc\Exception\StopActionException;
 use TYPO3\CMS\Extbase\Persistence\Exception\IllegalObjectTypeException;
 use TYPO3\CMS\Extbase\Persistence\Exception\UnknownObjectException;
+use TYPO3\CMS\Extbase\Utility\DebuggerUtility;
 
 /**
  * This file is part of the "Generator" Extension for TYPO3 CMS.
@@ -80,22 +81,17 @@ class ActivityController extends ActionController
     /**
      * action list
      *
+     * @param int|null $calendarWeekValue
      * @return ResponseInterface
      */
-    public function listAction(): ResponseInterface
+    public function listAction(int $calendarWeekValue = null): ResponseInterface
     {
-        $activities = $this->activityRepository->findAll();
-        // @todo: get calendar week from url ?
-        $selectedCalendarWeek = $_GET['kw'] ?? date('W');
+        $selectedCalendarWeek = (int) ($calendarWeekValue ?? date('W'));
+        $activities = $this->activityRepository->findByTraineeOrderedByCreationDateDescending($selectedCalendarWeek);
 
-        foreach ($activities as $activity) {
-            if (
-                $activity->getDate()->format('W') == $selectedCalendarWeek && 
-                $activity->getTrainee()->getUid() == $this->loggedInUserId
-            ) {
+        foreach ($activities as $activity)
+            if ($activity->getDate()->format('W') == $selectedCalendarWeek)
                 $this->filteredActivities[] = $activity;
-            }
-        }
 
         $this->view->assign('activities', $this->filteredActivities);
         return $this->htmlResponse();
@@ -136,9 +132,9 @@ class ActivityController extends ActionController
             'Y-m-d'
         );
 
-        $propertyMappingConfiguration->forProperty('*')->allowAllProperties();
-        $propertyMappingConfiguration->forProperty('*')->allowCreationForSubProperty('*');
-        $propertyMappingConfiguration->forProperty('*')->forProperty('*')->allowAllProperties();
+        $propertyMappingConfiguration->forProperty('date')->allowAllProperties();
+        $propertyMappingConfiguration->forProperty('date')->allowCreationForSubProperty('date');
+        $propertyMappingConfiguration->forProperty('date')->forProperty('date')->allowAllProperties();
     }
 
     /**
@@ -181,9 +177,9 @@ class ActivityController extends ActionController
             'Y-m-d'
         );
 
-        $propertyMappingConfiguration->forProperty('*')->allowAllProperties();
-        $propertyMappingConfiguration->forProperty('*')->allowCreationForSubProperty('*');
-        $propertyMappingConfiguration->forProperty('*')->forProperty('*')->allowAllProperties();
+        $propertyMappingConfiguration->forProperty('date')->allowAllProperties();
+        $propertyMappingConfiguration->forProperty('date')->allowCreationForSubProperty('date');
+        $propertyMappingConfiguration->forProperty('date')->forProperty('date')->allowAllProperties();
     }
 
     /**
@@ -220,20 +216,17 @@ class ActivityController extends ActionController
      * action generate
      *
      * @return void
+     *
+     * WIP
      */
-    public function generateAction(): void
+    public function generateAction(int $calendarWeek = null): void
     {
-        $activities = $this->activityRepository->findAll();
+        $activities = $this->activityRepository->findByTraineeOrderedByCreationDateDescending($calendarWeek);
 
-        // @todo: function needs to get the calendar week from the fluid select box in Resources/Private/Templates/Activity/List.html
-        $selectedCalendarWeek = $_GET['kw'] ?? date('W');
+        $selectedCalendarWeek = (int) ($calendarWeek ?? date('W'));
 
         foreach ($activities as $activity) {
-            if (
-                $activity->getDate()->format('W') == $selectedCalendarWeek &&
-                $activity->getTrainee()->getUid() == $this->loggedInUserId
-            ) {
-                // @todo: sort by date
+            if ($activity->getDate()->format('W') == $selectedCalendarWeek) {
                 $this->filteredActivities[] = [
                     $activity->getDate(),
                     $activity->getDesignation(),

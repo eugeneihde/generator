@@ -5,7 +5,7 @@
 <label for="date">
 	Datum *
 </label><br />
-	<f:form.textfield type="date" property="date" id="date" value="{activity.date -> f:format.date()}" required="true" /><br />
+	<f:form.textfield type="date" property="date" id="date" value="{activity.date -> f:format.date(format: 'Y-m-d')}" required="true" /><br />
 <label for="designation">
 	Bezeichnung *
 </label><br />
