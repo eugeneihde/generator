@@ -25,31 +25,31 @@
     <f:form action="list" name="calendarWeekSelect" method="POST">
         <f:form.select name="calendarWeekValue" options="{calendarWeeks}" />
         <f:form.submit value="Filtern" />
-
-        <table class="tx_generator">
-            <tr>
-                <th>Datum</th>
-                <th>Bezeichnung</th>
-                <th>Beschreibung</th>
-                <th>Kategorie</th>
-                <th>Optionen</th>
-            </tr>
-            <f:for each="{activities}" as="activity">
-                <tr>
-                    <td>{activity.date -> f:format.date()}</td>
-                    <td>{activity.designation}</td>
-                    <td>{activity.description}</td>
-                    <td>{activity.category}</td>
-                    <td>
-                        <f:link.action action="show" arguments="{activity : activity}"> Anzeigen </f:link.action>
-                        <f:link.action action="edit" arguments="{activity : activity}"> Bearbeiten </f:link.action>
-                        <f:link.action action="delete" arguments="{activity : activity}"> Löschen </f:link.action>
-                    </td>
-                </tr>
-            </f:for>
-        </table>
-
-        <f:link.action action="new">Aktivität hinzufügen</f:link.action>
     </f:form>
+
+    <table class="tx_generator">
+        <tr>
+            <th>Datum</th>
+            <th>Bezeichnung</th>
+            <th>Beschreibung</th>
+            <th>Kategorie</th>
+            <th>Optionen</th>
+        </tr>
+        <f:for each="{activities}" as="activity">
+            <tr>
+                <td>{activity.date -> f:format.date()}</td>
+                <td>{activity.designation}</td>
+                <td>{activity.description}</td>
+                <td>{activity.category}</td>
+                <td>
+                    <f:link.action action="show" arguments="{activity : activity}"> Anzeigen </f:link.action>
+                    <f:link.action action="edit" arguments="{activity : activity}"> Bearbeiten </f:link.action>
+                    <f:link.action action="delete" arguments="{activity : activity}"> Löschen </f:link.action>
+                </td>
+            </tr>
+        </f:for>
+    </table>
+
+    <f:link.action action="new">Aktivität hinzufügen</f:link.action>
 </f:section>
 </html>
