@@ -14,7 +14,9 @@ use TYPO3\CMS\Extbase\Mvc\Controller\ActionController;
 use TYPO3\CMS\Extbase\Mvc\Exception\NoSuchArgumentException;
 use TYPO3\CMS\Extbase\Mvc\Exception\StopActionException;
 use TYPO3\CMS\Extbase\Persistence\Exception\IllegalObjectTypeException;
+use TYPO3\CMS\Extbase\Persistence\Exception\InvalidQueryException;
 use TYPO3\CMS\Extbase\Persistence\Exception\UnknownObjectException;
+use DateTime;
 use TYPO3\CMS\Extbase\Utility\DebuggerUtility;
 
 /**
@@ -81,18 +83,36 @@ class ActivityController extends ActionController
     /**
      * action list
      *
-     * @param int|null $calendarWeekValue
      * @return ResponseInterface
+     * @throws InvalidQueryException
      */
-    public function listAction(int $calendarWeekValue = null): ResponseInterface
+    public function listAction(): ResponseInterface
     {
-        $selectedCalendarWeek = (int) ($calendarWeekValue ?? date('W'));
-        $activities = $this->activityRepository->findByTraineeOrderedByCreationDateDescending($selectedCalendarWeek);
+        try {
+            $data = $this->convertCalendarWeekToStartAndEndDate(
+                2023,
+                $this->request->getArgument('calendarWeekValue')
+            );
+        } catch (NoSuchArgumentException $e) {
+            $data = $this->convertCalendarWeekToStartAndEndDate(
+                2023,
+                date('W')
+            );
+        }
+//
+//        die(var_dump($data['week_start'] . " 00:00:00"));
+
+        $activities = $this->activityRepository->findByTraineeAndCalendarWeekOrderedByCreationDateDescending($data['week_start'], $data['week_end']);
 
         foreach ($activities as $activity)
-            if ($activity->getDate()->format('W') == $selectedCalendarWeek)
-                $this->filteredActivities[] = $activity;
+            $this->filteredActivities[] = $activity;
 
+        if ($this->filteredActivities == [])
+            $this->addFlashMessage(
+                '',
+                'Für diese Woche sind keine Aktivitäten vorhanden',
+                AbstractMessage::WARNING
+            );
         $this->view->assign('activities', $this->filteredActivities);
         return $this->htmlResponse();
     }
@@ -215,13 +235,15 @@ class ActivityController extends ActionController
     /**
      * action generate
      *
+     * @param int|null $calendarWeek
      * @return void
+     * @throws InvalidQueryException
      *
      * WIP
      */
     public function generateAction(int $calendarWeek = null): void
     {
-        $activities = $this->activityRepository->findByTraineeOrderedByCreationDateDescending($calendarWeek);
+        $activities = $this->activityRepository->findByTraineeAndCalendarWeekOrderedByCreationDateDescending();
 
         $selectedCalendarWeek = (int) ($calendarWeek ?? date('W'));
 
@@ -240,5 +262,23 @@ class ActivityController extends ActionController
             '<pre>%s</pre>',
             print_r($this->filteredActivities, true)
         );
+    }
+
+    /**
+     * @param $year
+     * @param $week
+     * @return array
+     */
+    protected function convertCalendarWeekToStartAndEndDate($year, $week): array
+    {
+//      https://stackoverflow.com/questions/4861384/php-get-start-and-end-date-of-a-week-by-weeknumber
+
+        $dto = new DateTime();
+        $dto->setISODate((int) $year, (int) $week);
+        $dayData['week_start'] = $dto->format('Y-m-d');
+        $dto->modify('+6 days');
+        $dayData['week_end'] = $dto->format('Y-m-d');
+
+        return $dayData;
     }
 }

@@ -5,8 +5,11 @@ declare(strict_types=1);
 namespace Generator\Generator\Domain\Repository;
 
 
+use TYPO3\CMS\Extbase\Persistence\Exception\InvalidQueryException;
+use TYPO3\CMS\Extbase\Persistence\QueryInterface;
 use TYPO3\CMS\Extbase\Persistence\QueryResultInterface;
 use TYPO3\CMS\Extbase\Persistence\Repository;
+use TYPO3\CMS\Extbase\Utility\DebuggerUtility;
 
 /**
  * This file is part of the "Generator" Extension for TYPO3 CMS.
@@ -23,23 +26,24 @@ use TYPO3\CMS\Extbase\Persistence\Repository;
 class ActivityRepository extends Repository
 {
     /**
-     * @param int $calendarWeek
+     * @param string $weekStart
+     * @param string $weekEnd
      * @return object[]|QueryResultInterface
+     * @throws InvalidQueryException
      */
-    public function findByTraineeOrderedByCreationDateDescending(int $calendarWeek): QueryResultInterface|array
+    public function findByTraineeAndCalendarWeekOrderedByCreationDateDescending(string $weekStart, string $weekEnd): QueryResultInterface|array
     {
         $query = $this->createQuery();
-
         $query->matching(
             $query->logicalAnd(
                 $query->equals('trainee', $GLOBALS['TSFE']->fe_user->user['uid']),
 //                @todo: get calendar week from DateTime and check
-//                $query->equals('date', $calendarWeek)
+                $query->greaterThanOrEqual('date', $weekStart . ' 00:00:00'),
+                $query->lessThanOrEqual('date', $weekEnd . ' 23:59:59')
             )
-        );
-
-        $query->setOrderings([
-            'date' => \TYPO3\CMS\Extbase\Persistence\QueryInterface::ORDER_ASCENDING
+        )
+        ->setOrderings([
+            'date' => QueryInterface::ORDER_ASCENDING
         ]);
 
         return $query->execute();
