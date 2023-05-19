@@ -42,7 +42,7 @@ class ActivityController extends ActionController
     protected ?ActivityRepository $activityRepository = null;
 
     /**
-     * @var TraineeRepository|null 
+     * @var TraineeRepository|null
      */
     protected ?TraineeRepository $traineeRepository = null;
 
@@ -63,7 +63,6 @@ class ActivityController extends ActionController
     public function injectActivityRepository(ActivityRepository $activityRepository): void
     {
         $this->activityRepository = $activityRepository;
-        
     }
 
     /**
@@ -89,20 +88,12 @@ class ActivityController extends ActionController
     public function listAction(): ResponseInterface
     {
         try {
-            $data = $this->convertCalendarWeekToStartAndEndDate(
-                2023,
-                $this->request->getArgument('calendarWeekValue')
-            );
+            $data = $this->request->getArgument('datePickerValue');
         } catch (NoSuchArgumentException $e) {
-            $data = $this->convertCalendarWeekToStartAndEndDate(
-                2023,
-                date('W')
-            );
+            $data = date('Y-m-d');
         }
-//
-//        die(var_dump($data['week_start'] . " 00:00:00"));
 
-        $activities = $this->activityRepository->findByTraineeAndCalendarWeekOrderedByCreationDateDescending($data['week_start'], $data['week_end']);
+        $activities = $this->activityRepository->findByTraineeAndDate($data);
 
         foreach ($activities as $activity)
             $this->filteredActivities[] = $activity;

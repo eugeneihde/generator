@@ -49,6 +49,23 @@ class ActivityRepository extends Repository
         return $query->execute();
     }
 
+    /**
+     * @param string $date
+     * @return QueryResultInterface|array
+     */
+    public function findByTraineeAndDate(string $date): QueryResultInterface|array
+    {
+        $query = $this->createQuery();
+        $query->matching(
+            $query->logicalAnd(
+                $query->equals('trainee', $GLOBALS['TSFE']->fe_user->user['uid']),
+                $query->equals('date', $date . ' 00:00:00')
+            )
+        );
+
+        return $query->execute();
+    }
+
     public function findByTraineeAndCalendarWeekOrderedByCreationDateAscending()
     {
         $query = $this->createQuery();
