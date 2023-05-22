@@ -13,8 +13,10 @@
 
     <f:form action="create" name="newActivity" object="{newActivity}">
     <f:render partial="Activity/FormFields" />
-    <f:form.submit value="Hinzufügen" />
+    <f:form.submit class="form-action__button" value="Hinzufügen" />
     </f:form>
-    <f:link.action action="list">Abbrechen</f:link.action>
+    <f:link.action action="list">
+        <f:form.button class="form-action__button">Abbrechen</f:form.button>
+    </f:link.action>
 </f:section>
 </html>

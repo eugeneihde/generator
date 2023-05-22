@@ -2,20 +2,22 @@
 	xmlns:f="http://typo3.org/ns/TYPO3/CMS/Fluid/ViewHelpers"
 	data-namespace-typo3-fluid="true" lang="de"
 >
-<label for="date">
-	Datum *
-</label><br />
-	<f:form.textfield class="date-picker__select" type="date" property="date" id="date" value="{activity.date -> f:format.date(format: 'Y-m-d')}" required="true" /><br />
-<label for="designation">
-	Bezeichnung *
-</label><br />
-	<f:form.textfield class="new-form__textfield" property="designation" id="designation" /><br />
-<label for="description">
-	Beschreibung *
-</label><br />
-	<f:form.textarea class="new-form__textarea" property="description" id="description" /><br />
-<label for="category">
-	Kategorie
-</label><br />
-	<f:form.textfield class="new-form__textfield" property="category" id="category" /><br />
+<div id="new-form__container">
+	<label for="date">
+		Datum *
+	</label><br />
+		<f:form.textfield class="date-picker-field__select" type="date" property="date" id="date" value="{activity.date -> f:format.date(format: 'Y-m-d')}" required="true" /><br />
+	<label for="designation">
+		Bezeichnung *
+	</label><br />
+		<f:form.textfield class="new-form__textfield" property="designation" id="designation" /><br />
+	<label for="description">
+		Beschreibung *
+	</label><br />
+		<f:form.textarea class="new-form__textarea" property="description" id="description" /><br />
+	<label for="category">
+		Kategorie
+	</label><br />
+		<f:form.textfield class="new-form__textfield" property="category" id="category" /><br />
+</div>
 </html>

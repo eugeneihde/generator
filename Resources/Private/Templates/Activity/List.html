@@ -11,7 +11,7 @@
 
     <f:form action="list" name="datePickerValue" method="POST">
         <f:form.textfield class="date-picker__select" name="datePickerValue" type="date" value="{activity.date -> f:format.date(format: 'Y-m-d')}" />
-        <f:form.submit class="date-picker__submit" value="Nach Datum filtern" />
+        <f:form.submit class="form-action__button" value="Nach Datum filtern" />
     </f:form>
 
     <table class="tx_generator">
@@ -24,7 +24,7 @@
         </tr>
         <f:for each="{activities}" as="activity">
             <tr>
-                <td>{activity.date -> f:format.date()}</td>
+                <td>{activity.date -> f:format.date(format: 'd.m.Y')}</td>
                 <td>{activity.designation}</td>
                 <td>{activity.description}</td>
                 <td>{activity.category}</td>
@@ -37,8 +37,8 @@
         </f:for>
     </table>
 
-    <f:form.button class="list-form-new__button">
-        <f:link.action action="new">Aktivität hinzufügen</f:link.action>
-    </f:form.button>
+    <f:link.action action="new">
+        <f:form.button class="form-action__button">Aktivität hinzufügen</f:form.button>
+    </f:link.action>
 </f:section>
 </html>

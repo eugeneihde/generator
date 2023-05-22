@@ -1,5 +1,6 @@
 /* @todo: add custom styling for extension */
 
+/* TABLE STYLING */
 table, th, tr, td {
     border: 1px solid grey;
     margin: 20px;
@@ -12,27 +13,41 @@ tr { height: 40px; }
 
 .tx_generator { width: 100%; }
 
+
+/* ELEMENT STYLING */
+#new-form__container { margin: 20px; }
+
 .date-picker__select {
     padding: 5px;
     border: 1px solid grey;
     border-radius: 5px;
 }
 
-.date-picker__submit {
-    background-color: #fff;
-    border: 1px solid grey;
-    border-radius: 5px;
-    padding: 5px;
-    transition: 0.5s;
-}
-
-.date-picker__submit:hover {
-    background-color: #438a56;
-}
-
 .form-action__button {
+    width: 200px;
     background-color: #fff;
     border: 1px solid grey;
     border-radius: 5px;
     padding: 5px;
+    margin: 5px;
+}
+
+.date-picker-field__select {
+    padding: 5px;
+    width: 100%;
+    border: 1px solid grey;
+    border-radius: 5px;
+}
+
+.new-form__textfield {
+    height: 35px;
+    width: 100%;
+    border-radius: 5px;
+    border: 1px solid grey;
+}
+.new-form__textarea {
+    height: 100px;
+    width: 100%;
+    border-radius: 5px;
+    border: 1px solid grey;
 }
