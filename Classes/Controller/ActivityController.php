@@ -83,13 +83,14 @@ class ActivityController extends ActionController
      * action list
      *
      * @return ResponseInterface
-     * @throws InvalidQueryException
      */
     public function listAction(): ResponseInterface
     {
         try {
             $data = $this->request->getArgument('datePickerValue');
-        } catch (NoSuchArgumentException $e) {
+            if ($data == '')
+                $data = date('Y-m-d');
+        } catch (NoSuchArgumentException $exception) {
             $data = date('Y-m-d');
         }
 
@@ -99,11 +100,7 @@ class ActivityController extends ActionController
             $this->filteredActivities[] = $activity;
 
         if ($this->filteredActivities == [])
-            $this->addFlashMessage(
-                '',
-                'Für diese Woche sind keine Aktivitäten vorhanden',
-                AbstractMessage::WARNING
-            );
+            $this->addFlashMessage('', 'Für diesen Tag sind keine Aktivitäten vorhanden: ' . $data, AbstractMessage::NOTICE);
         $this->view->assign('activities', $this->filteredActivities);
         return $this->htmlResponse();
     }
@@ -234,6 +231,14 @@ class ActivityController extends ActionController
      */
     public function generateAction(int $calendarWeek = null): void
     {
+        try {
+            $data = $this->request->getArgument('calendarWeekValue');
+            $values = $this->getCalendarWeekInformation(2023, $data);
+        } catch (NoSuchArgumentException $e) {
+            $data = date('W');
+            $values = $this->getCalendarWeekInformation(2023, $data);
+        }
+
         $activities = $this->activityRepository->findByTraineeAndCalendarWeekOrderedByCreationDateDescending();
 
         $selectedCalendarWeek = (int) ($calendarWeek ?? date('W'));
@@ -260,10 +265,8 @@ class ActivityController extends ActionController
      * @param $week
      * @return array
      */
-    protected function convertCalendarWeekToStartAndEndDate($year, $week): array
+    protected function getCalendarWeekInformation($year, $week): array
     {
-//      https://stackoverflow.com/questions/4861384/php-get-start-and-end-date-of-a-week-by-weeknumber
-
         $dto = new DateTime();
         $dto->setISODate((int) $year, (int) $week);
         $dayData['week_start'] = $dto->format('Y-m-d');
