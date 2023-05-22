@@ -1,0 +1,38 @@
+/* @todo: add custom styling for extension */
+
+table, th, tr, td {
+    border: 1px solid grey;
+    margin: 20px;
+    padding: 3px;
+}
+
+th, tr { text-align: center; }
+
+tr { height: 40px; }
+
+.tx_generator { width: 100%; }
+
+.date-picker__select {
+    padding: 5px;
+    border: 1px solid grey;
+    border-radius: 5px;
+}
+
+.date-picker__submit {
+    background-color: #fff;
+    border: 1px solid grey;
+    border-radius: 5px;
+    padding: 5px;
+    transition: 0.5s;
+}
+
+.date-picker__submit:hover {
+    background-color: #438a56;
+}
+
+.form-action__button {
+    background-color: #fff;
+    border: 1px solid grey;
+    border-radius: 5px;
+    padding: 5px;
+}

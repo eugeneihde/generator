@@ -1,6 +1,6 @@
 <html
-        xmlns:f="http://typo3.org/ns/TYPO3/CMS/Fluid/ViewHelpers"
-        data-namespace-typo3-fluid="true"
+    xmlns:f="http://typo3.org/ns/TYPO3/CMS/Fluid/ViewHelpers"
+    data-namespace-typo3-fluid="true"
 >
 
 <f:layout name="Default" />
@@ -10,8 +10,8 @@
     <f:flashMessages />
 
     <f:form action="list" name="datePickerValue" method="POST">
-        <f:form.textfield name="datePickerValue" type="date" />
-        <f:form.submit value="Nach Datum filtern" />
+        <f:form.textfield class="date-picker__select" name="datePickerValue" type="date" value="{activity.date -> f:format.date(format: 'Y-m-d')}" />
+        <f:form.submit class="date-picker__submit" value="Nach Datum filtern" />
     </f:form>
 
     <table class="tx_generator">
@@ -37,6 +37,8 @@
         </f:for>
     </table>
 
-    <f:link.action action="new">Aktivität hinzufügen</f:link.action>
+    <f:form.button class="list-form-new__button">
+        <f:link.action action="new">Aktivität hinzufügen</f:link.action>
+    </f:form.button>
 </f:section>
 </html>
