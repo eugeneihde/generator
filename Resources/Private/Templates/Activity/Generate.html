@@ -1,0 +1,52 @@
+<html
+    xmlns:f="http://typo3.org/ns/TYPO3/CMS/Fluid/ViewHelpers"
+    data-namespace-typo3-fluid="true"
+>
+
+<f:layout name="Default" />
+
+<f:section name="content">
+
+    <f:flashMessages />
+
+    <f:variable name="currentCalendarWeek" value="" />
+    <f:variable name="iterator" value="0" />
+
+    <div class="generate__window">
+        <h3>Generierter Nachweis für Kalenderwoche: <strong>{calendarWeek}</strong>, Jahr: <strong>{year}</strong></h3>
+
+        <div class="activity-row">
+            <f:for each="{activities}" as="activity">
+                <f:if condition="{currentDate} != {activity.date}">
+                    <f:if condition="{iterator} != 0">
+                        <p>
+                            -----------------------------------------------------
+                        </p>
+                    </f:if>
+                    <h4>
+                        {activity.date -> f:format.date(format: 'd.m.Y')}
+                    </h4>
+                    <f:variable name="currentDate" value="{activity.date}" />
+                    <f:variable name="iterator" value="1" />
+                </f:if>
+                <p>
+                    <strong>- Aktivität:</strong> {activity.designation}
+                </p>
+                <p class="activity-row__description">
+                    <strong>- Beschreibung:</strong> {activity.description}
+                </p>
+                <f:if condition="{activity.category}">
+                    <p class="activity-row__category">
+                        <strong>- Kategorie:</strong> {activity.category}
+                    </p>
+                </f:if>
+            </f:for>
+        </div>
+    </div>
+
+    <f:link.action action="list">
+        <f:form.button class="form-action__button">Zurück zur Übersicht</f:form.button>
+    </f:link.action>
+
+</f:section>
+</html>

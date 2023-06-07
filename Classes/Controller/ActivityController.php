@@ -1,10 +1,20 @@
 <?php
-
 declare(strict_types=1);
+
+/**
+ * This file is part of the "Generator" Extension for TYPO3 CMS.
+ *
+ *
+ * For the full copyright and license information, please read the
+ * LICENSE.txt file that was distributed with this source code.
+ *
+ * (c) 2023 Eugene Ihde <eugene.ihde@brandung.de>, brandung GmbH
+ */
 
 namespace Generator\Generator\Controller;
 
 
+use Exception;
 use Generator\Generator\Domain\Model\Activity;
 use Generator\Generator\Domain\Repository\TraineeRepository;
 use Generator\Generator\Domain\Repository\ActivityRepository;
@@ -17,25 +27,14 @@ use TYPO3\CMS\Extbase\Persistence\Exception\IllegalObjectTypeException;
 use TYPO3\CMS\Extbase\Persistence\Exception\InvalidQueryException;
 use TYPO3\CMS\Extbase\Persistence\Exception\UnknownObjectException;
 use DateTime;
-use TYPO3\CMS\Extbase\Utility\DebuggerUtility;
 
 /**
- * This file is part of the "Generator" Extension for TYPO3 CMS.
- *
- *
- * For the full copyright and license information, please read the
- * LICENSE.txt file that was distributed with this source code.
- *
- * (c) 2023 Eugene Ihde <eugene.ihde@brandung.de>, brandung GmbH
- */
-
-/**
- * ActivityController
+ * This Class is responsible for controlling requests from the activitymanager frontend plugin.
  */
 class ActivityController extends ActionController
 {
     /**
-     * activityRepository
+     * Activity Repository
      *
      * @var ActivityRepository|null
      */
@@ -82,25 +81,30 @@ class ActivityController extends ActionController
     /**
      * action list
      *
+     * @param DateTime|null $date
      * @return ResponseInterface
      */
-    public function listAction(): ResponseInterface
+    public function listAction(DateTime $date = null): ResponseInterface
     {
         try {
-            $data = $this->request->getArgument('datePickerValue');
-            if ($data == '')
-                $data = date('Y-m-d');
+            $date = $this->request->getArgument('datePickerValue');
+            if ($date == '') {
+                $date = date('Y-m-d');
+            }
         } catch (NoSuchArgumentException $exception) {
-            $data = date('Y-m-d');
+            $date = date('Y-m-d');
         }
 
-        $activities = $this->activityRepository->findByTraineeAndDate($data);
+        $activities = $this->activityRepository->findByTraineeAndDate($this->loggedInUserId, $date);
 
-        foreach ($activities as $activity)
+        foreach ($activities as $activity) {
             $this->filteredActivities[] = $activity;
+        }
 
-        if ($this->filteredActivities == [])
-            $this->addFlashMessage('', 'Für diesen Tag sind keine Aktivitäten vorhanden: ' . $data, AbstractMessage::NOTICE);
+        if ($this->filteredActivities == []) {
+            $this->addFlashMessage('', 'Für diesen Tag sind keine Aktivitäten vorhanden: ' . $date, AbstractMessage::NOTICE);
+        }
+        $this->view->assign('selectedDate', $date);
         $this->view->assign('activities', $this->filteredActivities);
         return $this->htmlResponse();
     }
@@ -121,10 +125,12 @@ class ActivityController extends ActionController
     /**
      * action new
      *
+     * @param string $selectedDate
      * @return ResponseInterface
      */
-    public function newAction(): ResponseInterface
+    public function newAction(string $selectedDate = ''): ResponseInterface
     {
+        $this->view->assign('selectedDate', $selectedDate);
         return $this->htmlResponse();
     }
 
@@ -200,7 +206,7 @@ class ActivityController extends ActionController
     {
         try {
             $this->activityRepository->update($activity);
-        } catch (IllegalObjectTypeException|UnknownObjectException $e) {
+        } catch (IllegalObjectTypeException|UnknownObjectException $exception) {
         }
         $this->addFlashMessage('Aktivität wurde aktualisiert', '', \TYPO3\CMS\Core\Messaging\AbstractMessage::OK);
         $this->redirect('list');
@@ -223,41 +229,47 @@ class ActivityController extends ActionController
     /**
      * action generate
      *
-     * @param int|null $calendarWeek
-     * @return void
+     * @param string $selectedDate
+     * @return ResponseInterface
      * @throws InvalidQueryException
-     *
-     * WIP
+     * @throws Exception
      */
-    public function generateAction(int $calendarWeek = null): void
+    public function generateAction(string $selectedDate = ''): ResponseInterface
     {
-        try {
-            $data = $this->request->getArgument('calendarWeekValue');
-            $values = $this->getCalendarWeekInformation(2023, $data);
-        } catch (NoSuchArgumentException $e) {
-            $data = date('W');
-            $values = $this->getCalendarWeekInformation(2023, $data);
-        }
+        $year = substr($selectedDate, 0, 4);
+        $calendarWeek = $this->getCalendarWeekDataFromDate($selectedDate);
+        $values = $this->getCalendarWeekInformation($year, $calendarWeek);
 
-        $activities = $this->activityRepository->findByTraineeAndCalendarWeekOrderedByCreationDateDescending();
-
-        $selectedCalendarWeek = (int) ($calendarWeek ?? date('W'));
+        $activities = $this->activityRepository->findByTraineeAndCalendarWeekOrderedByCreationDateDescending(
+            $this->loggedInUserId,
+            $values['week_start'],
+            $values['week_end']
+        );
 
         foreach ($activities as $activity) {
-            if ($activity->getDate()->format('W') == $selectedCalendarWeek) {
-                $this->filteredActivities[] = [
-                    $activity->getDate(),
-                    $activity->getDesignation(),
-                    $activity->getDescription(),
-                    $activity->getCategory()
-                ];
-            }
+            $this->filteredActivities[] = $activity;
         }
 
-        printf(
-            '<pre>%s</pre>',
-            print_r($this->filteredActivities, true)
-        );
+        if ($this->filteredActivities == []) {
+            $this->addFlashMessage('Für diese Kalenderwoche sind keine Aktivitäten vorhanden!', '', AbstractMessage::WARNING);
+        }
+
+        $this->view->assign('activities', $this->filteredActivities);
+        $this->view->assign('year', $year);
+        $this->view->assign('calendarWeek', $calendarWeek);
+        $this->view->assign('selectedDate', $selectedDate);
+        return $this->htmlResponse();
+    }
+
+    /**
+     * @param $date
+     * @return string
+     * @throws Exception
+     */
+    protected function getCalendarWeekDataFromDate($date): string
+    {
+        $dto = new DateTime($date);
+        return $dto->format("W");
     }
 
     /**

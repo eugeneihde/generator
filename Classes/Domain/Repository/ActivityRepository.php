@@ -26,18 +26,18 @@ use TYPO3\CMS\Extbase\Utility\DebuggerUtility;
 class ActivityRepository extends Repository
 {
     /**
+     * @param int $userId
      * @param string $weekStart
      * @param string $weekEnd
      * @return object[]|QueryResultInterface
      * @throws InvalidQueryException
      */
-    public function findByTraineeAndCalendarWeekOrderedByCreationDateDescending(string $weekStart, string $weekEnd): QueryResultInterface|array
+    public function findByTraineeAndCalendarWeekOrderedByCreationDateDescending(int $userId, string $weekStart, string $weekEnd): QueryResultInterface|array
     {
         $query = $this->createQuery();
         $query->matching(
             $query->logicalAnd(
-                $query->equals('trainee', $GLOBALS['TSFE']->fe_user->user['uid']),
-//                @todo: get calendar week from DateTime and check
+                $query->equals('trainee', $userId),
                 $query->greaterThanOrEqual('date', $weekStart . ' 00:00:00'),
                 $query->lessThanOrEqual('date', $weekEnd . ' 23:59:59')
             )
@@ -51,23 +51,19 @@ class ActivityRepository extends Repository
 
     /**
      * @param string $date
+     * @param int $userId
      * @return QueryResultInterface|array
      */
-    public function findByTraineeAndDate(string $date): QueryResultInterface|array
+    public function findByTraineeAndDate(int $userId, string $date): QueryResultInterface|array
     {
         $query = $this->createQuery();
         $query->matching(
             $query->logicalAnd(
-                $query->equals('trainee', $GLOBALS['TSFE']->fe_user->user['uid']),
+                $query->equals('trainee', $userId),
                 $query->equals('date', $date . ' 00:00:00')
             )
         );
 
         return $query->execute();
-    }
-
-    public function findByTraineeAndCalendarWeekOrderedByCreationDateAscending()
-    {
-        $query = $this->createQuery();
     }
 }

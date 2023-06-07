@@ -6,11 +6,11 @@ defined('TYPO3') || die();
         'Generator',
         'Activitymanager',
         [
-            \Generator\Generator\Controller\ActivityController::class => 'list, show, new, create, edit, update, delete'
+            \Generator\Generator\Controller\ActivityController::class => 'list, show, new, create, edit, update, delete, generate'
         ],
         // non-cacheable actions
         [
-            \Generator\Generator\Controller\ActivityController::class => 'list, show, new, create, edit, update, delete'
+            \Generator\Generator\Controller\ActivityController::class => 'list, show, new, create, edit, update, delete, generate'
         ]
     );
 

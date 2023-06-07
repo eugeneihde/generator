@@ -10,7 +10,7 @@
     <f:flashMessages />
 
     <f:form action="list" name="datePickerValue" method="POST">
-        <f:form.textfield class="date-picker__select" name="datePickerValue" type="date" value="{activity.date -> f:format.date(format: 'Y-m-d')}" />
+        <f:form.textfield class="date-picker__select" name="datePickerValue" type="date" value="{selectedDate -> f:format.date(format: 'Y-m-d')}" />
         <f:form.submit class="form-action__button" value="Nach Datum filtern" />
     </f:form>
 
@@ -37,8 +37,11 @@
         </f:for>
     </table>
 
-    <f:link.action action="new">
+    <f:link.action action="new" arguments="{selectedDate: selectedDate}">
         <f:form.button class="form-action__button">Aktivität hinzufügen</f:form.button>
+    </f:link.action>
+    <f:link.action action="generate" arguments="{selectedDate: selectedDate}">
+        <f:form.button class="form-action__button">Nachweis generieren</f:form.button>
     </f:link.action>
 </f:section>
 </html>

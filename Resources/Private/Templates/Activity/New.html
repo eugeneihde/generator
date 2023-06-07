@@ -5,14 +5,14 @@
 <f:layout name="Default" />
 
 <f:section name="content">
+
     <h1>Aktivität hinzufügen</h1>
 
     <f:flashMessages />
 
     <f:render partial="FormErrors" />
-
     <f:form action="create" name="newActivity" object="{newActivity}">
-    <f:render partial="Activity/FormFields" />
+    <f:render partial="Activity/FormFields" arguments="{selectedDate: selectedDate}" />
     <f:form.submit class="form-action__button" value="Hinzufügen" />
     </f:form>
     <f:link.action action="list">
