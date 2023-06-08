@@ -240,7 +240,7 @@ class ActivityController extends ActionController
         $calendarWeek = $this->getCalendarWeekDataFromDate($selectedDate);
         $values = $this->getCalendarWeekInformation($year, $calendarWeek);
 
-        $activities = $this->activityRepository->findByTraineeAndCalendarWeekOrderedByCreationDateDescending(
+        $activities = $this->activityRepository->findByTraineeAndCalendarWeekOrderedByCreationDateAscending(
             $this->loggedInUserId,
             $values['week_start'],
             $values['week_end']

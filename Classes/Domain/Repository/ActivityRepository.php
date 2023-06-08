@@ -9,7 +9,6 @@ use TYPO3\CMS\Extbase\Persistence\Exception\InvalidQueryException;
 use TYPO3\CMS\Extbase\Persistence\QueryInterface;
 use TYPO3\CMS\Extbase\Persistence\QueryResultInterface;
 use TYPO3\CMS\Extbase\Persistence\Repository;
-use TYPO3\CMS\Extbase\Utility\DebuggerUtility;
 
 /**
  * This file is part of the "Generator" Extension for TYPO3 CMS.
@@ -32,19 +31,20 @@ class ActivityRepository extends Repository
      * @return object[]|QueryResultInterface
      * @throws InvalidQueryException
      */
-    public function findByTraineeAndCalendarWeekOrderedByCreationDateDescending(int $userId, string $weekStart, string $weekEnd): QueryResultInterface|array
+    public function findByTraineeAndCalendarWeekOrderedByCreationDateAscending(int $userId, string $weekStart, string $weekEnd): QueryResultInterface|array
     {
         $query = $this->createQuery();
-        $query->matching(
-            $query->logicalAnd(
-                $query->equals('trainee', $userId),
-                $query->greaterThanOrEqual('date', $weekStart . ' 00:00:00'),
-                $query->lessThanOrEqual('date', $weekEnd . ' 23:59:59')
+        $query
+            ->matching(
+                $query->logicalAnd(
+                    $query->equals('trainee', $userId),
+                    $query->greaterThanOrEqual('date', $weekStart . ' 00:00:00'),
+                    $query->lessThanOrEqual('date', $weekEnd . ' 23:59:59')
+                )
             )
-        )
-        ->setOrderings([
-            'date' => QueryInterface::ORDER_ASCENDING
-        ]);
+            ->setOrderings([
+                'date' => QueryInterface::ORDER_ASCENDING
+            ]);
 
         return $query->execute();
     }
