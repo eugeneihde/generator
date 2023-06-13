@@ -155,7 +155,7 @@
             "generateEditorConfig": false,
             "generateEmptyGitRepository": false,
             "sourceLanguage": "en",
-            "state": "alpha",
+            "state": "stable",
             "targetVersion": "11.5.0-11.5.99",
             "version": "1.0.0"
         },
