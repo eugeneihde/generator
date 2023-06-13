@@ -28,10 +28,10 @@ class ActivityRepository extends Repository
      * @param int $userId
      * @param string $weekStart
      * @param string $weekEnd
-     * @return object[]|QueryResultInterface
+     * @return QueryResultInterface|null
      * @throws InvalidQueryException
      */
-    public function findByTraineeAndCalendarWeekOrderedByCreationDateAscending(int $userId, string $weekStart, string $weekEnd): QueryResultInterface|array
+    public function findByTraineeAndCalendarWeekOrderedByCreationDateAscending(int $userId, string $weekStart, string $weekEnd): QueryResultInterface|null
     {
         $query = $this->createQuery();
         $query
@@ -46,15 +46,19 @@ class ActivityRepository extends Repository
                 'date' => QueryInterface::ORDER_ASCENDING
             ]);
 
-        return $query->execute();
+        if ($query->execute()->count()) {
+            return $query->execute();
+        } else {
+            return null;
+        }
     }
 
     /**
      * @param string $date
      * @param int $userId
-     * @return QueryResultInterface|array
+     * @return QueryResultInterface|null
      */
-    public function findByTraineeAndDate(int $userId, string $date): QueryResultInterface|array
+    public function findByTraineeAndDate(int $userId, string $date): QueryResultInterface|null
     {
         $query = $this->createQuery();
         $query->matching(
@@ -64,6 +68,10 @@ class ActivityRepository extends Repository
             )
         );
 
-        return $query->execute();
+        if ($query->execute()->count()) {
+            return $query->execute();
+        } else {
+            return null;
+        }
     }
 }

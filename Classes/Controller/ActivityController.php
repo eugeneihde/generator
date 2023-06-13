@@ -51,11 +51,6 @@ class ActivityController extends ActionController
     protected int $loggedInUserId = 0;
 
     /**
-     * @var array
-     */
-    protected array $filteredActivities = [];
-
-    /**
      * @param ActivityRepository $activityRepository
      * @return void
      */
@@ -97,15 +92,15 @@ class ActivityController extends ActionController
 
         $activities = $this->activityRepository->findByTraineeAndDate($this->loggedInUserId, $date);
 
-        foreach ($activities as $activity) {
-            $this->filteredActivities[] = $activity;
-        }
-
-        if ($this->filteredActivities == []) {
-            $this->addFlashMessage('', 'Für diesen Tag sind keine Aktivitäten vorhanden: ' . $date, AbstractMessage::NOTICE);
+        if ($activities === null) {
+            $this->addFlashMessage(
+                '',
+                'Für diesen Tag sind keine Aktivitäten vorhanden: ' . $date,
+                AbstractMessage::NOTICE
+            );
         }
         $this->view->assign('selectedDate', $date);
-        $this->view->assign('activities', $this->filteredActivities);
+        $this->view->assign('activities', $activities);
         return $this->htmlResponse();
     }
 
@@ -208,7 +203,7 @@ class ActivityController extends ActionController
             $this->activityRepository->update($activity);
         } catch (IllegalObjectTypeException|UnknownObjectException $exception) {
         }
-        $this->addFlashMessage('Aktivität wurde aktualisiert', '', \TYPO3\CMS\Core\Messaging\AbstractMessage::OK);
+        $this->addFlashMessage('Aktivität wurde aktualisiert');
         $this->redirect('list');
     }
 
@@ -222,7 +217,7 @@ class ActivityController extends ActionController
     public function deleteAction(Activity $activity)
     {
         $this->activityRepository->remove($activity);
-        $this->addFlashMessage('Aktivität wurde gelöscht', '', \TYPO3\CMS\Core\Messaging\AbstractMessage::OK);
+        $this->addFlashMessage('Aktivität wurde gelöscht');
         $this->redirect('list');
     }
 
@@ -246,15 +241,15 @@ class ActivityController extends ActionController
             $values['week_end']
         );
 
-        foreach ($activities as $activity) {
-            $this->filteredActivities[] = $activity;
+        if ($activities === null) {
+            $this->addFlashMessage(
+                'Für diese Kalenderwoche sind keine Aktivitäten vorhanden!',
+                '',
+                AbstractMessage::WARNING
+            );
         }
 
-        if ($this->filteredActivities == []) {
-            $this->addFlashMessage('Für diese Kalenderwoche sind keine Aktivitäten vorhanden!', '', AbstractMessage::WARNING);
-        }
-
-        $this->view->assign('activities', $this->filteredActivities);
+        $this->view->assign('activities', $activities);
         $this->view->assign('year', $year);
         $this->view->assign('calendarWeek', $calendarWeek);
         $this->view->assign('selectedDate', $selectedDate);
