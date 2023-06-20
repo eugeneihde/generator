@@ -5,17 +5,33 @@
 <f:layout name="Default" />
 
 <f:section name="content">
+
+    <f:form.validationResults>
+        <f:if condition="{validationResults.flattenedErrors}">
+            <ul class="errors">
+                <f:for each="{validationResults.flattenedErrors}" as="errors" key="propertyPath">
+                    <li>{propertyPath}
+                        <ul>
+                            <f:for each="{errors}" as="error">
+                                <li>{error.code}: {error}</li>
+                            </f:for>
+                        </ul>
+                    </li>
+                </f:for>
+            </ul>
+        </f:if>
+    </f:form.validationResults>
+
     <h1>Aktivität bearbeiten</h1>
 
     <f:flashMessages />
 
     <f:render partial="FormErrors" />
-
-    <f:form action="update" name="activity" object="{activity}" >
-    <f:render partial="Activity/FormFields" arguments="{activity:activity}" />
-    <f:form.submit class="form-action__button" value="Speichern" />
+    <f:form action="update" object="{activity}" objectName="activity">
+        <f:render partial="Activity/FormFields" arguments="{_all}" />
+        <f:form.submit class="form-action__button" value="Speichern" />
     </f:form>
-    <f:link.action action="list">
+    <f:link.action action="list" arguments="{date: '{activity.date -> f:format.date(format: \'Y-m-d\')}'}">
         <f:form.button class="form-action__button">Abbrechen</f:form.button>
     </f:link.action>
 </f:section>

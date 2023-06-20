@@ -8,40 +8,51 @@
 <f:section name="content">
 
     <f:flashMessages />
+    <f:render partial="FormErrors" />
 
-    <f:form action="list" name="datePickerValue" method="POST">
-        <f:form.textfield class="date-picker__select" name="datePickerValue" type="date" value="{selectedDate -> f:format.date(format: 'Y-m-d')}" />
+    <f:variable name="formattedDate" value="{date -> f:format.date(format: 'Y-m-d')}" />
+
+    <f:form action="list" method="POST">
+        <f:form.textfield
+            class="date-picker__select"
+            name="date"
+            type="date"
+            value="{formattedDate}"
+        />
         <f:form.submit class="form-action__button" value="Nach Datum filtern" />
     </f:form>
 
-    <table class="tx_generator">
-        <tr>
-            <th>Datum</th>
-            <th>Bezeichnung</th>
-            <th>Beschreibung</th>
-            <th>Kategorie</th>
-            <th>Optionen</th>
-        </tr>
-        <f:for each="{activities}" as="activity">
+    <f:if condition="{activities -> f:count()} > 0">
+        <table class="tx_generator">
             <tr>
-                <td>{activity.date -> f:format.date(format: 'd.m.Y')}</td>
-                <td>{activity.designation}</td>
-                <td>{activity.description}</td>
-                <td>{activity.category}</td>
-                <td>
-                    <f:link.action action="show" arguments="{activity : activity}"> Anzeigen </f:link.action>
-                    <f:link.action action="edit" arguments="{activity : activity}"> Bearbeiten </f:link.action>
-                    <f:link.action action="delete" arguments="{activity : activity}"> Löschen </f:link.action>
-                </td>
+                <th>Datum</th>
+                <th>Bezeichnung</th>
+                <th>Beschreibung</th>
+                <th>Kategorie</th>
+                <th>Optionen</th>
             </tr>
-        </f:for>
-    </table>
+            <f:for each="{activities}" as="activity">
+                <tr>
+                    <td>{activity.date -> f:format.date(format: dateFormat)}</td>
+                    <td>{activity.designation}</td>
+                    <td class="activity-list__description">{activity.description -> f:format.nl2br()}</td>
+                    <td>{activity.category}</td>
+                    <td>
+                        <f:link.action action="show" arguments="{activity : activity}"> Anzeigen </f:link.action>
+                        <f:link.action action="edit" arguments="{activity : activity}"> Bearbeiten </f:link.action>
+                        <f:link.action action="delete" arguments="{activity : activity}"> Löschen </f:link.action>
+                    </td>
+                </tr>
+            </f:for>
+        </table>
+    </f:if>
 
-    <f:link.action action="new" arguments="{selectedDate: selectedDate}">
+    <f:form action="new" method="POST" objectName="activity">
+        <f:form.hidden property="date" value="{formattedDate}" />
         <f:form.button class="form-action__button">Aktivität hinzufügen</f:form.button>
-    </f:link.action>
-    <f:link.action action="generate" arguments="{selectedDate: selectedDate}">
-        <f:form.button class="form-action__button">Nachweis generieren</f:form.button>
+    </f:form>
+    <f:link.action action="generate" arguments="{date: formattedDate}">
+        <button class="form-action__button">Nachweis generieren</button>
     </f:link.action>
 </f:section>
 </html>

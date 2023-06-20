@@ -3,7 +3,7 @@
 	<file source-language="en" datatype="plaintext" original="EXT:generator/Resources/Private/Language/locallang_csh_tx_generator_domain_model_activity.xlf" date="2023-05-09T08:33:33Z" product-name="generator">
 		<header/>
 		<body>
-			<trans-unit id="date.description" resname="date.description">
+			<trans-unit id="timestamp.description" resname="timestamp.description">
 				<source>date</source>
 			</trans-unit>
 			<trans-unit id="designation.description" resname="designation.description">

@@ -5,12 +5,14 @@
 <f:layout name="Default" />
 
 <f:section name="content">
+    <f:flashMessages />
+    <f:render partial="FormErrors" />
+
     <h1>Einzelansicht einer Aktivität</h1>
 
-    <f:flashMessages />
     <f:render partial="Activity/Properties" arguments="{activity:activity}" />
 
-    <f:link.action action="list">
+    <f:link.action action="list" arguments="{date: '{activity.date -> f:format.date(format: \'Y-m-d\')}'}">
         <f:form.button class="form-action__button">Zurück zur Übersicht</f:form.button>
     </f:link.action>
 </f:section>

@@ -56,9 +56,10 @@ class Activity extends \TYPO3\CMS\Extbase\DomainObject\AbstractEntity
     /**
      * trainee
      *
-     * @var Trainee|null
+     * @var Trainee
+     * @TYPO3\CMS\Extbase\Annotation\Validate("NotEmpty")
      */
-    protected ?Trainee $trainee = null;
+    protected Trainee $trainee;
 
     /**
      * Returns the date
@@ -147,9 +148,9 @@ class Activity extends \TYPO3\CMS\Extbase\DomainObject\AbstractEntity
     /**
      * Returns the trainee
      *
-     * @return Trainee|null
+     * @return Trainee
      */
-    public function getTrainee(): ?Trainee
+    public function getTrainee(): Trainee
     {
         return $this->trainee;
     }

@@ -2,7 +2,7 @@
 return [
     'ctrl' => [
         'title' => 'LLL:EXT:generator/Resources/Private/Language/locallang_db.xlf:tx_generator_domain_model_activity',
-        'label' => 'date',
+        'label' => 'timestamp',
         'tstamp' => 'tstamp',
         'crdate' => 'crdate',
         'cruser_id' => 'cruser_id',
@@ -17,7 +17,7 @@ return [
         'iconfile' => 'EXT:generator/Resources/Public/Icons/tx_generator_domain_model_activity.gif'
     ],
     'types' => [
-        '1' => ['showitem' => 'date, designation, description, category, trainee, --div--;LLL:EXT:core/Resources/Private/Language/Form/locallang_tabs.xlf:language, sys_language_uid, l10n_parent, l10n_diffsource'],
+        '1' => ['showitem' => 'timestamp, designation, description, category, trainee, --div--;LLL:EXT:core/Resources/Private/Language/Form/locallang_tabs.xlf:language, sys_language_uid, l10n_parent, l10n_diffsource'],
     ],
     'columns' => [
         'sys_language_uid' => [
@@ -47,12 +47,11 @@ return [
             ],
         ],
 
-        'date' => [
+        'timestamp' => [
             'exclude' => true,
-            'label' => 'LLL:EXT:generator/Resources/Private/Language/locallang_db.xlf:tx_generator_domain_model_activity.date',
-            'description' => 'LLL:EXT:generator/Resources/Private/Language/locallang_db.xlf:tx_generator_domain_model_activity.date.description',
+            'label' => 'LLL:EXT:generator/Resources/Private/Language/locallang_db.xlf:tx_generator_domain_model_activity.timestamp',
+            'description' => 'LLL:EXT:generator/Resources/Private/Language/locallang_db.xlf:tx_generator_domain_model_activity.timestamp.description',
             'config' => [
-                'dbType' => 'date',
                 'type' => 'input',
                 'renderType' => 'inputDateTime',
                 'size' => 7,

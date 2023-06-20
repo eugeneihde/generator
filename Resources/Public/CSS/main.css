@@ -5,12 +5,19 @@ table, th, tr, td {
     padding: 3px;
 }
 
-th, tr { text-align: center; }
+th, tr { 
+    text-align: center;
+}
 
 tr { height: 40px; }
 
-.tx_generator { width: 100%; }
+.tx_generator { 
+    width: 100%;
+}
 
+.activity-list__description { 
+    text-align: left;
+}
 
 /* ELEMENT STYLING */
 #new-form__container { margin: 20px; }
@@ -54,13 +61,16 @@ tr { height: 40px; }
 /* GENERATE WINDOW STYLING */
 .generate__window {}
 
-.activity-row {}
-
-.activity-row__description {
-    padding-left: 20px;
+.activity-row {
+    width: 100%;
+    height: 650px;
 }
 
-.activity-row__category {
-    margin-top: -20px;
-    padding-left: 20px;
-}
+/*.activity-row__description {*/
+/*    padding-left: 20px;*/
+/*}*/
+
+/*.activity-row__category {*/
+/*    margin-top: -20px;*/
+/*    padding-left: 20px;*/
+/*}*/

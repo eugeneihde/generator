@@ -16,90 +16,90 @@ namespace Generator\Generator\Controller;
 
 use Exception;
 use Generator\Generator\Domain\Model\Activity;
+use Generator\Generator\Domain\Model\Trainee;
 use Generator\Generator\Domain\Repository\TraineeRepository;
 use Generator\Generator\Domain\Repository\ActivityRepository;
 use Psr\Http\Message\ResponseInterface;
+use TYPO3\CMS\Core\Context\Context;
+use TYPO3\CMS\Core\Context\Exception\AspectNotFoundException;
+use TYPO3\CMS\Core\Http\PropagateResponseException;
 use TYPO3\CMS\Core\Messaging\AbstractMessage;
+use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Mvc\Controller\ActionController;
 use TYPO3\CMS\Extbase\Mvc\Exception\NoSuchArgumentException;
 use TYPO3\CMS\Extbase\Mvc\Exception\StopActionException;
 use TYPO3\CMS\Extbase\Persistence\Exception\IllegalObjectTypeException;
 use TYPO3\CMS\Extbase\Persistence\Exception\InvalidQueryException;
-use TYPO3\CMS\Extbase\Persistence\Exception\UnknownObjectException;
 use DateTime;
+use TYPO3\CMS\Extbase\Property\TypeConverter\DateTimeConverter;
+use TYPO3\CMS\Extbase\Annotation\IgnoreValidation;
 
 /**
  * This Class is responsible for controlling requests from the activitymanager frontend plugin.
  */
 class ActivityController extends ActionController
 {
-    /**
-     * Activity Repository
-     *
-     * @var ActivityRepository|null
-     */
-    protected ?ActivityRepository $activityRepository = null;
-
-    /**
-     * @var TraineeRepository|null
-     */
-    protected ?TraineeRepository $traineeRepository = null;
+    public const DATE_FORMAT = 'd.m.Y';
 
     /**
      * @var int
      */
     protected int $loggedInUserId = 0;
 
-    /**
-     * @param ActivityRepository $activityRepository
-     * @return void
-     */
-    public function injectActivityRepository(ActivityRepository $activityRepository): void
+    public function __construct(
+        protected ActivityRepository $activityRepository, 
+        protected TraineeRepository $traineeRepository
+    )
     {
-        $this->activityRepository = $activityRepository;
+
     }
 
     /**
-     * @param TraineeRepository $traineeRepository
      * @return void
+     * @throws NoSuchArgumentException
      */
-    public function injectTraineeRepository(TraineeRepository $traineeRepository): void
+    public function initializeListAction(): void
     {
-        $this->traineeRepository = $traineeRepository;
-    }
+        if (!$this->request->hasArgument('date')) {
+            $this->request->setArgument('date', new DateTime());
+        }
 
-    public function __construct()
-    {
-        $this->loggedInUserId = $GLOBALS['TSFE']->fe_user->user['uid'];
+        $propertyMappingConfiguration = $this->arguments->getArgument('date')->getPropertyMappingConfiguration();
+        $propertyMappingConfiguration->setTypeConverterOption(
+            DateTimeConverter::class,
+            DateTimeConverter::CONFIGURATION_DATE_FORMAT,
+            'Y-m-d'
+        );
     }
 
     /**
      * action list
      *
-     * @param DateTime|null $date
+     * @param DateTime $date
      * @return ResponseInterface
+     * @throws PropagateResponseException|AspectNotFoundException
+     * @throws InvalidQueryException
      */
-    public function listAction(DateTime $date = null): ResponseInterface
+    public function listAction(DateTime $date): ResponseInterface
     {
-        try {
-            $date = $this->request->getArgument('datePickerValue');
-            if ($date == '') {
-                $date = date('Y-m-d');
-            }
-        } catch (NoSuchArgumentException $exception) {
-            $date = date('Y-m-d');
+        $trainee = $this->getTrainee();
+
+        if ($trainee === null) {
+            $this->throwStatus(403);
         }
 
-        $activities = $this->activityRepository->findByTraineeAndDate($this->loggedInUserId, $date);
+        $activities = $this->activityRepository->findByTraineeAndDate($trainee, $date);
 
-        if ($activities === null) {
+        if ($activities->count() === 0) {
             $this->addFlashMessage(
                 '',
-                'Für diesen Tag sind keine Aktivitäten vorhanden: ' . $date,
+                'Für diesen Tag sind keine Aktivitäten vorhanden: ' . $date->format(self::DATE_FORMAT),
                 AbstractMessage::NOTICE
             );
         }
-        $this->view->assign('selectedDate', $date);
+
+        $this->view->assign('date', $date);
+        $this->view->assign('dateFormat', self::DATE_FORMAT);
         $this->view->assign('activities', $activities);
         return $this->htmlResponse();
     }
@@ -112,60 +112,82 @@ class ActivityController extends ActionController
      */
     public function showAction(Activity $activity): ResponseInterface
     {
-//        $this->generateAction();
         $this->view->assign('activity', $activity);
-        return $this->htmlResponse();
-    }
-
-    /**
-     * action new
-     *
-     * @param string $selectedDate
-     * @return ResponseInterface
-     */
-    public function newAction(string $selectedDate = ''): ResponseInterface
-    {
-        $this->view->assign('selectedDate', $selectedDate);
         return $this->htmlResponse();
     }
 
     /**
      * @throws NoSuchArgumentException
      */
+    public function initializeNewAction()
+    {
+        $this->convertDateForActivityWithTypeConverter();
+    }
+
+    /**
+     * action new
+     *
+     * @param Activity $activity
+     * @return ResponseInterface
+     * @IgnoreValidation("activity")
+     */
+    public function newAction(Activity $activity): ResponseInterface
+    {
+        $this->view->assign('activity', $activity);
+        return $this->htmlResponse();
+    }
+
+    /**
+     * @throws NoSuchArgumentException
+     * @throws AspectNotFoundException
+     * @throws PropagateResponseException
+     */
     public function initializeCreateAction()
     {
-        $propertyMappingConfiguration = $this->arguments->getArgument('newActivity')->getPropertyMappingConfiguration();
-        $propertyMappingConfiguration->forProperty('date')->setTypeConverterOption(
-            'TYPO3\\CMS\\Extbase\\Property\\TypeConverter\\DateTimeConverter',
-            \TYPO3\CMS\Extbase\Property\TypeConverter\DateTimeConverter::CONFIGURATION_DATE_FORMAT,
-            'Y-m-d'
-        );
+        $this->convertDateForActivityWithTypeConverter(true);
 
-        $propertyMappingConfiguration->forProperty('date')->allowAllProperties();
-        $propertyMappingConfiguration->forProperty('date')->allowCreationForSubProperty('date');
-        $propertyMappingConfiguration->forProperty('date')->forProperty('date')->allowAllProperties();
+        $trainee = $this->getTrainee();
+        if ($trainee === null) {
+            $this->throwStatus(403);
+        }
+
+        $activity = $this->request->getArgument('activity');
+        $activity['trainee'] = $trainee->getUid();
+        $this->request->setArgument('activity', $activity);
     }
 
     /**
      * action create
      *
-     * @param Activity $newActivity
+     * @param Activity $activity
      * @throws StopActionException
      * @throws IllegalObjectTypeException
      */
-    public function createAction(Activity $newActivity)
+    public function createAction(Activity $activity)
     {
-        $newActivity->setTrainee($this->traineeRepository->findByUid($this->loggedInUserId));
-        $this->activityRepository->add($newActivity);
-        $this->addFlashMessage('Aktivität wurde erstellt', '', \TYPO3\CMS\Core\Messaging\AbstractMessage::OK);
-        $this->redirect('list');
+        $this->activityRepository->add($activity);
+        $this->addFlashMessage('Aktivität wurde erstellt');
+        $this->redirect(
+            'list',
+            null,
+            null,
+            ['date' => $activity->getDate()->format('Y-m-d')]
+        );
+    }
+
+    /**
+     * @throws NoSuchArgumentException
+     */
+    public function initializeEditAction()
+    {
+        $this->convertDateForActivityWithTypeConverter();
     }
 
     /**
      * action edit
      *
      * @param Activity $activity
-     * @TYPO3\CMS\Extbase\Annotation\IgnoreValidation("activity")
+     * @IgnoreValidation("activity")
      * @return ResponseInterface
      */
     public function editAction(Activity $activity): ResponseInterface
@@ -179,16 +201,7 @@ class ActivityController extends ActionController
      */
     public function initializeUpdateAction()
     {
-        $propertyMappingConfiguration = $this->arguments->getArgument('activity')->getPropertyMappingConfiguration();
-        $propertyMappingConfiguration->forProperty('date')->setTypeConverterOption(
-            'TYPO3\\CMS\\Extbase\\Property\\TypeConverter\\DateTimeConverter',
-            \TYPO3\CMS\Extbase\Property\TypeConverter\DateTimeConverter::CONFIGURATION_DATE_FORMAT,
-            'Y-m-d'
-        );
-
-        $propertyMappingConfiguration->forProperty('date')->allowAllProperties();
-        $propertyMappingConfiguration->forProperty('date')->allowCreationForSubProperty('date');
-        $propertyMappingConfiguration->forProperty('date')->forProperty('date')->allowAllProperties();
+        $this->convertDateForActivityWithTypeConverter();
     }
 
     /**
@@ -199,12 +212,15 @@ class ActivityController extends ActionController
      */
     public function updateAction(Activity $activity)
     {
-        try {
-            $this->activityRepository->update($activity);
-        } catch (IllegalObjectTypeException|UnknownObjectException $exception) {
-        }
+        $this->activityRepository->update($activity);
         $this->addFlashMessage('Aktivität wurde aktualisiert');
-        $this->redirect('list');
+        $this->redirect(
+            'list',
+            null,
+            null,
+            ['date' => $activity->getDate()->format('Y-m-d')]
+        );
+
     }
 
     /**
@@ -218,30 +234,48 @@ class ActivityController extends ActionController
     {
         $this->activityRepository->remove($activity);
         $this->addFlashMessage('Aktivität wurde gelöscht');
-        $this->redirect('list');
+        $this->redirect(
+            'list',
+            null,
+            null,
+            ['date' => $activity->getDate()->format('Y-m-d')]
+        );
+    }
+
+    /**
+     * @throws NoSuchArgumentException
+     */
+    public function initializeGenerateAction()
+    {
+        $propertyMappingConfiguration = $this->arguments->getArgument('date')->getPropertyMappingConfiguration();
+        $propertyMappingConfiguration->setTypeConverterOption(
+            DateTimeConverter::class,
+            DateTimeConverter::CONFIGURATION_DATE_FORMAT,
+            'Y-m-d'
+        );
     }
 
     /**
      * action generate
      *
-     * @param string $selectedDate
+     * @param DateTime $date
      * @return ResponseInterface
      * @throws InvalidQueryException
      * @throws Exception
      */
-    public function generateAction(string $selectedDate = ''): ResponseInterface
+    public function generateAction(DateTime $date): ResponseInterface
     {
-        $year = substr($selectedDate, 0, 4);
-        $calendarWeek = $this->getCalendarWeekDataFromDate($selectedDate);
-        $values = $this->getCalendarWeekInformation($year, $calendarWeek);
+        $trainee = $this->getTrainee();
+        if ($trainee === null) {
+            $this->throwStatus(403);
+        }
 
-        $activities = $this->activityRepository->findByTraineeAndCalendarWeekOrderedByCreationDateAscending(
-            $this->loggedInUserId,
-            $values['week_start'],
-            $values['week_end']
-        );
+        $year = $date->format('Y');
+        $calendarWeek = $date->format('W');
 
-        if ($activities === null) {
+        $activities = $this->activityRepository->findByTraineeAndCalendarWeekOrderedByCreationDateAscending($trainee, $date);
+
+        if ($activities->count() === 0) {
             $this->addFlashMessage(
                 'Für diese Kalenderwoche sind keine Aktivitäten vorhanden!',
                 '',
@@ -252,34 +286,40 @@ class ActivityController extends ActionController
         $this->view->assign('activities', $activities);
         $this->view->assign('year', $year);
         $this->view->assign('calendarWeek', $calendarWeek);
-        $this->view->assign('selectedDate', $selectedDate);
+        $this->view->assign('date', $date);
         return $this->htmlResponse();
     }
 
     /**
-     * @param $date
-     * @return string
-     * @throws Exception
+     * @return Trainee|null
+     * @throws AspectNotFoundException
      */
-    protected function getCalendarWeekDataFromDate($date): string
+    protected function getTrainee(): ?Trainee
     {
-        $dto = new DateTime($date);
-        return $dto->format("W");
+        $context = GeneralUtility::makeInstance(Context::class);
+        $userId = $context->getPropertyFromAspect('frontend.user', 'id');
+
+        if ($userId === 0) {
+            return null;
+        }
+
+        return $this->traineeRepository->findByUid($userId);
     }
 
     /**
-     * @param $year
-     * @param $week
-     * @return array
+     * @throws NoSuchArgumentException
      */
-    protected function getCalendarWeekInformation($year, $week): array
+    protected function convertDateForActivityWithTypeConverter(bool $withTrainee = false)
     {
-        $dto = new DateTime();
-        $dto->setISODate((int) $year, (int) $week);
-        $dayData['week_start'] = $dto->format('Y-m-d');
-        $dto->modify('+6 days');
-        $dayData['week_end'] = $dto->format('Y-m-d');
+        $propertyMappingConfiguration = $this->arguments->getArgument('activity')->getPropertyMappingConfiguration();
+        $propertyMappingConfiguration->forProperty('date')->setTypeConverterOption(
+            DateTimeConverter::class,
+            DateTimeConverter::CONFIGURATION_DATE_FORMAT,
+            'Y-m-d'
+        );
 
-        return $dayData;
+        if ($withTrainee) {
+            $propertyMappingConfiguration->allowProperties('trainee');
+        }
     }
 }

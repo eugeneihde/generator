@@ -8,43 +8,39 @@
 <f:section name="content">
 
     <f:flashMessages />
+    <f:render partial="FormErrors" />
 
     <f:variable name="currentDate" value="" />
     <f:variable name="iterator" value="0" />
 
     <div class="generate__window">
-        <h3>Generierter Nachweis für Kalenderwoche: <strong>{calendarWeek}</strong>, Jahr: <strong>{year}</strong></h3>
+        <h3>
+            Generierter Nachweis für Kalenderwoche: 
+            <strong>{date -> f:format.date(format: 'W')}</strong>, 
+            Jahr: 
+            <strong>{date -> f:format.date(format: 'Y')}</strong>
+        </h3>
 
-        <div class="activity-row">
+        <textarea class="activity-row">
             <f:for each="{activities}" as="activity">
                 <f:if condition="{currentDate} != {activity.date}">
                     <f:if condition="{iterator} != 0">
-                        <p>
-                            -----------------------------------------------------
-                        </p>
+-----------------------------------------------------
                     </f:if>
-                    <h4>
-                        {activity.date -> f:format.date(format: 'd.m.Y')}
-                    </h4>
+{activity.date -> f:format.date(format: 'd.m.Y')}
                     <f:variable name="currentDate" value="{activity.date}" />
                     <f:variable name="iterator" value="1" />
                 </f:if>
-                <p>
-                    <strong>- Aktivität:</strong> {activity.designation}
-                </p>
-                <p class="activity-row__description">
-                    <strong>- Beschreibung:</strong> {activity.description}
-                </p>
+        - Aktivität: {activity.designation}
+        - Beschreibung: {activity.description}
                 <f:if condition="{activity.category}">
-                    <p class="activity-row__category">
-                        <strong>- Kategorie:</strong> {activity.category}
-                    </p>
+        - Kategorie: {activity.category}
                 </f:if>
             </f:for>
-        </div>
+        </textarea>
     </div>
 
-    <f:link.action action="list">
+    <f:link.action action="list" arguments="{date: '{date -> f:format.date(format: \'Y-m-d\')}'}">
         <f:form.button class="form-action__button">Zurück zur Übersicht</f:form.button>
     </f:link.action>
 

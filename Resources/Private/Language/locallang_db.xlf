@@ -9,10 +9,10 @@
 			<trans-unit id="tx_generator_domain_model_activity.description" resname="tx_generator_domain_model_activity.description">
 				<source>Description</source>
 			</trans-unit>
-			<trans-unit id="tx_generator_domain_model_activity.date" resname="tx_generator_domain_model_activity.date">
+			<trans-unit id="tx_generator_domain_model_activity.timestamp" resname="tx_generator_domain_model_activity.timestamp">
 				<source>Date</source>
 			</trans-unit>
-			<trans-unit id="tx_generator_domain_model_activity.date.description" resname="tx_generator_domain_model_activity.date.description">
+			<trans-unit id="tx_generator_domain_model_activity.timestamp.description" resname="tx_generator_domain_model_activity.timestamp.description">
 				<source>Date</source>
 			</trans-unit>
 			<trans-unit id="tx_generator_domain_model_activity.designation" resname="tx_generator_domain_model_activity.designation">

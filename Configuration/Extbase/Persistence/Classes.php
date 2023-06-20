@@ -7,4 +7,11 @@ return [
         'tableName' => 'fe_users',
         
     ],
+    \Generator\Generator\Domain\Model\Activity::class => [
+        'properties' => [
+            'date' => [
+                'fieldName' => 'timestamp',
+            ],
+        ],  
+    ],
 ];

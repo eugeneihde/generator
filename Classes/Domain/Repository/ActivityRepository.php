@@ -5,10 +5,13 @@ declare(strict_types=1);
 namespace Generator\Generator\Domain\Repository;
 
 
+use DateTime;
+use Generator\Generator\Domain\Model\Trainee;
 use TYPO3\CMS\Extbase\Persistence\Exception\InvalidQueryException;
 use TYPO3\CMS\Extbase\Persistence\QueryInterface;
 use TYPO3\CMS\Extbase\Persistence\QueryResultInterface;
 use TYPO3\CMS\Extbase\Persistence\Repository;
+
 
 /**
  * This file is part of the "Generator" Extension for TYPO3 CMS.
@@ -25,53 +28,56 @@ use TYPO3\CMS\Extbase\Persistence\Repository;
 class ActivityRepository extends Repository
 {
     /**
-     * @param int $userId
-     * @param string $weekStart
-     * @param string $weekEnd
-     * @return QueryResultInterface|null
+     * @param Trainee $trainee
+     * @param DateTime $date
+     * @return QueryResultInterface
      * @throws InvalidQueryException
      */
-    public function findByTraineeAndCalendarWeekOrderedByCreationDateAscending(int $userId, string $weekStart, string $weekEnd): QueryResultInterface|null
+    public function findByTraineeAndCalendarWeekOrderedByCreationDateAscending(Trainee $trainee, DateTime $date): QueryResultInterface
     {
+        $startOfWeek = clone $date;
+        $startOfWeek->modify('monday');
+        $endOfWeek = clone $date;
+        $endOfWeek->modify('monday + 1 week');
+
         $query = $this->createQuery();
         $query
             ->matching(
                 $query->logicalAnd(
-                    $query->equals('trainee', $userId),
-                    $query->greaterThanOrEqual('date', $weekStart . ' 00:00:00'),
-                    $query->lessThanOrEqual('date', $weekEnd . ' 23:59:59')
+                    $query->equals('trainee', $trainee),
+                    $query->greaterThanOrEqual('date', $startOfWeek),
+                    $query->lessThan('date', $endOfWeek)
                 )
             )
             ->setOrderings([
                 'date' => QueryInterface::ORDER_ASCENDING
             ]);
 
-        if ($query->execute()->count()) {
-            return $query->execute();
-        } else {
-            return null;
-        }
+        return $query->execute();
     }
 
     /**
-     * @param string $date
-     * @param int $userId
-     * @return QueryResultInterface|null
+     * @param Trainee $trainee
+     * @param DateTime $date
+     * @return QueryResultInterface
+     * @throws InvalidQueryException
      */
-    public function findByTraineeAndDate(int $userId, string $date): QueryResultInterface|null
+    public function findByTraineeAndDate(Trainee $trainee, DateTime $date): QueryResultInterface
     {
+        $dayStart = clone $date;
+        $dayStart->modify('midnight');
+        $dayEnd = clone $date;
+        $dayEnd->modify('tomorrow');
+
         $query = $this->createQuery();
         $query->matching(
             $query->logicalAnd(
-                $query->equals('trainee', $userId),
-                $query->equals('date', $date . ' 00:00:00')
+                $query->equals('trainee', $trainee),
+                $query->greaterThanOrEqual('date', $dayStart),
+                $query->lessThan('date', $dayEnd)
             )
         );
 
-        if ($query->execute()->count()) {
-            return $query->execute();
-        } else {
-            return null;
-        }
+        return $query->execute();
     }
 }

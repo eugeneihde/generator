@@ -7,7 +7,7 @@
 	<label for="date">
 		Datum *
 	</label><br />
-		<f:form.textfield class="date-picker-field__select" type="date" property="date" id="date" value="{selectedDate}" required="true" /><br />
+		<f:form.textfield class="date-picker-field__select" type="date" value="{activity.date -> f:format.date(format: 'Y-m-d')}" property="date" id="date" required="true" /><br />
 	<label for="designation">
 		Bezeichnung *
 	</label><br />
