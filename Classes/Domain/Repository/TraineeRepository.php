@@ -11,7 +11,7 @@ use TYPO3\CMS\Extbase\Persistence\Repository;
  * For the full copyright and license information, please read the
  * LICENSE.txt file that was distributed with this source code.
  *
- * (c) 2023 Eugene Ihde <eugene.ihde@brandung.de>, brandung GmbH
+ * (c) 2023 Eugene Ihde <eugeneihde.business@gmail.com>
  */
 
 /**
