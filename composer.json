@@ -20,11 +20,6 @@
             "Generator\\Generator\\": "Classes"
         }
     },
-    "autoload-dev": {
-        "psr-4": {
-            "Generator\\Generator\\Tests\\": "Tests"
-        }
-    },
     "replace": {
         "typo3-ter/generator": "self.version"
     },
